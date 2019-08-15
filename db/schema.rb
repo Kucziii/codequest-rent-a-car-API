@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2017_05_16_122232) do
+ActiveRecord::Schema.define(version: 2019_08_11_154117) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -23,6 +23,7 @@ ActiveRecord::Schema.define(version: 2017_05_16_122232) do
     t.string "condition"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "office_id"
   end
 
   create_table "offices", id: :serial, force: :cascade do |t|
@@ -32,6 +33,16 @@ ActiveRecord::Schema.define(version: 2017_05_16_122232) do
     t.string "phone_number"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "owner_id"
+  end
+
+  create_table "rentals", force: :cascade do |t|
+    t.bigint "customer_id"
+    t.bigint "car_id"
+    t.string "car_make"
+    t.string "car_model"
+    t.datetime "rented_from"
+    t.datetime "rented_to"
   end
 
   create_table "users", id: :serial, force: :cascade do |t|
@@ -45,6 +56,8 @@ ActiveRecord::Schema.define(version: 2017_05_16_122232) do
     t.string "password_digest"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "role"
+    t.bigint "office_id"
   end
 
 end

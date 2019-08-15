@@ -1,11 +1,11 @@
 require 'rails_helper'
 RSpec.describe 'POST /office/:office_id/rentals', type: :request do
   let(:customer) { create :customer }
-  let(:owner) { create :owner }
-  let(:office) { create :office, owner: owner }
-  let(:car) { create :car, office: office }
-  let(:rented_from) { DateTime.now + 1.day }
-  let(:rented_to) { DateTime.now + 8.days }
+  let(:office) { create :office }
+  let(:owner) { create :owner, office_id: office.id }
+  let(:car) { create :car, office_id: office.id }
+  let(:rented_from) { DateTime.now.utc + 1.day }
+  let(:rented_to) { DateTime.now.utc + 8.days }
 
   let(:action) do
     post '/rentals', params: params, headers: headers
@@ -57,7 +57,7 @@ RSpec.describe 'POST /office/:office_id/rentals', type: :request do
 
     context 'when the car belongs to some other office' do
       let(:other_office) { create :office }
-      let(:car) { create :car, office: other_office }
+      let(:car) { create :car, office_id: other_office.id }
 
       it 'does not create a Rental' do
         expect { action }.to_not change { Rental.count }
@@ -79,10 +79,10 @@ RSpec.describe 'POST /office/:office_id/rentals', type: :request do
       before do
         create(
           :rental,
-          customer:    other_customer,
-          car:         car,
-          rented_from: DateTime.parse(params[:rented_from]) - 1.day,
-          rented_to:   DateTime.parse(params[:rented_to]) + 1.day,
+          customer_id:    other_customer.id,
+          car_id:         car.id,
+          rented_from: params[:rented_from] - 1.day,
+          rented_to:   params[:rented_to] + 1.day
         )
       end
 
