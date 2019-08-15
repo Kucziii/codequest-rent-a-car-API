@@ -42,7 +42,7 @@ Knock.setup do |config|
   ## How long before a token is expired.
   ##
   ## Default:
-  # config.token_lifetime = 1.day
+   config.token_lifetime = 1.day
 
 
   ## Audience claim
@@ -63,7 +63,7 @@ Knock.setup do |config|
   ## Configure the algorithm used to encode the token
   ##
   ## Default:
-  # config.token_signature_algorithm = 'HS256'
+   config.token_signature_algorithm = 'HS256'
 
   ## Signature key
   ## -------------
@@ -71,7 +71,8 @@ Knock.setup do |config|
   ## Configure the key used to sign tokens.
   ##
   ## Default:
-  config.token_secret_signature_key = -> { ENV['JWT_SECRET_KEY']}
+  #  config.token_secret_signature_key = -> { ENV['JWT_SECRET_KEY']}
+  config.token_secret_signature_key = -> { Rails.application.credentials.read }
 
   ## If using Auth0, uncomment the line below
   # config.token_secret_signature_key = -> { JWT.base64url_decode Rails.application.secrets.auth0_client_secret }
