@@ -4,8 +4,8 @@ RSpec.describe 'POST /office/:office_id/rentals', type: :request do
   let(:office) { create :office }
   let(:owner) { create :owner, office_id: office.id }
   let(:car) { create :car, office_id: office.id }
-  let(:rented_from) { DateTime.now.utc + 1.day }
-  let(:rented_to) { DateTime.now.utc + 8.days }
+  let(:rented_from) { DateTime.now + 1.day }
+  let(:rented_to) { DateTime.now + 8.days }
 
   let(:action) do
     post '/rentals', params: params, headers: headers
@@ -76,13 +76,20 @@ RSpec.describe 'POST /office/:office_id/rentals', type: :request do
 
     context 'when the car is already rented' do
       let(:other_customer) { create :customer }
-      before do
+      before do # create rentals to check if new date_check works in both cases
         create(
           :rental,
           customer_id:    other_customer.id,
           car_id:         car.id,
-          rented_from: params[:rented_from] - 1.day,
-          rented_to:   params[:rented_to] + 1.day
+          rented_from: rented_from - 1.day,
+          rented_to:   rented_from + 1.day
+        )
+        create(
+          :rental,
+          customer_id:    other_customer.id,
+          car_id:         car.id,
+          rented_from: rented_to - 1.day,
+          rented_to:   rented_to + 1.day
         )
       end
 
@@ -100,5 +107,55 @@ RSpec.describe 'POST /office/:office_id/rentals', type: :request do
         expect(JSON.parse(response.body)).to eq('The car is already rented to someone else!')
       end
     end # car already rented
+
+    context 'when customer_id is wrong' do
+      let(:params) do
+        {
+          car_id:      car.id,
+          customer_id: 9999,
+          rented_from: rented_from,
+          rented_to:   rented_to
+        }
+      end
+
+      it 'does not create a Rental' do
+        expect { action }.to_not change { Rental.count }
+      end
+
+      it 'returns error' do
+        action
+        expect(JSON.parse(response.body)).to eq('Please provide valid customer')
+      end
+    end # customer_id is wrong
+
+    context 'when customer is an owner' do
+      let(:owner_customer) { create :owner }
+      let(:params) do
+        {
+          car_id:      car.id,
+          customer_id: owner_customer.id,
+          rented_from: rented_from,
+          rented_to:   rented_to
+        }
+      end
+
+      it 'does not create a Rental' do
+        expect { action }.to_not change { Rental.count }
+      end
+    end # customer is owner
+
+    context 'when no customer is passed' do
+      let(:params) do
+        {
+          car_id:      car.id,
+          rented_from: rented_from,
+          rented_to:   rented_to
+        }
+      end
+
+      it 'does not create a Rental' do
+        expect { action }.to_not change { Rental.count }
+      end
+    end
   end # user authenticated
 end
