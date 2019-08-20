@@ -76,7 +76,7 @@ class Api::V1::RentalsController < ApplicationController
 
   def wrong_rental_params
     render status: :unprocessable_entity,
-           json: '"Please provide valid customer!"'
+           json: '"Please provide valid params!"'
   end
 
   def wrong_customer
